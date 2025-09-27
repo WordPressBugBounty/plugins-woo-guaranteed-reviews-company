@@ -2,13 +2,13 @@
 Contributors: nicolas2d
 Tags: reviews, customer, avis, clients, rates, notes, commentaires, produits, comments, étoiles, google, stars
 Requires at least: 4.0
-Tested up to: 6.4
+Tested up to: 6.8.2
 Requires PHP: 5.0
 Stable tag: 1.2.6
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 WC requires at least: 2.5
-WC tested up to: 8.6.1
+WC tested up to: 10.2
 
 Collect and display product and website reviews through Guaranteed Reviews Company / Société des Avis Garantis.
 
