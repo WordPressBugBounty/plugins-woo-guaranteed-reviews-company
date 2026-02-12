@@ -58,6 +58,22 @@ class WC_SAG_Admin_Page {
         }
 
         if ( ( $this->settings->get( 'api_key' ) !== '' ) || ( isset( $_GET['bypass_account'] ) ) ) {
+            
+            if( !$this->settings->get( 'public_api_key' ) ) {
+                // Try to retrieve public key from API
+                $response = wp_remote_get( 'https://api.guaranteed-reviews.com/private/v3/stats?api_key='. $this->settings->get( 'api_key' ) .'&scope=site&include_public_key=true' );
+
+                if ( !is_wp_error( $response ) ) {
+                    $body = wp_remote_retrieve_body( $response );
+                    $data = json_decode( $body );
+
+                    if(isset($data->public_key) && !empty($data->public_key)) {
+                        $this->settings->set( 'public_api_key', $data->public_key );
+                        $this->settings->save();
+                    }
+                }
+            }
+
             include_once( WC_SAG_PLUGIN_DIR . 'views/settings-page.php' );
         }
         else {
@@ -65,18 +81,26 @@ class WC_SAG_Admin_Page {
             include_once( WC_SAG_PLUGIN_DIR . 'views/account-page.php' );
         }
     }
-
+    
     /**
      * Update settings based on form submission
      */
     protected function update_settings() {
+
+        if ( isset( $_POST['public_api_key'] ) ) {
+            $this->settings->set( 'public_api_key', $_POST['public_api_key'] );
+        }
+
         if ( isset( $_POST['api_key'] ) ) {
             $this->settings->set( 'api_key_raw', $_POST['api_key'] );
         }
+
         if ( isset( $_POST['wc_statuses'] ) && is_array( $_POST['wc_statuses'] ) ) {
-            $this->settings->set( 'wc_statuses', array_intersect( $_POST['wc_statuses'], array_keys(wc_get_order_statuses()) ) );
+            $this->settings->set( 'wc_statuses', array_intersect( $_POST['wc_statuses'], array_keys( wc_get_order_statuses() ) ) );
         }
 
+        $this->settings->set( 'enable_new_widgets', isset( $_POST['enable_new_widgets'] ) && !empty( $_POST['public_api_key'] ) ? 1 : 0 );
+        $this->settings->set( 'use_old_orders_method', isset( $_POST['use_old_orders_method'] ) ? 1 : 0 );
         $this->settings->set( 'enable_widget_js', isset( $_POST['enable_widget_js'] ) ? 1 : 0 );
         $this->settings->set( 'enable_widget_product', isset( $_POST['enable_widget_product'] ) ? 1 : 0 );
         $this->settings->set( 'widget_style', $_POST['widget_style'] );
@@ -95,7 +119,12 @@ class WC_SAG_Admin_Page {
      */
     protected function save_apikey() {
         if ( isset( $_POST['api_key'] ) ) {
+            // Save API key
             $this->settings->set( 'api_key_raw', $_POST['api_key'] );
+
+            // Enable new widgets by default on new installation
+            $this->settings->set( 'enable_new_widgets', true );
+
             $this->settings->save();
         }
     }
@@ -110,9 +139,11 @@ class WC_SAG_Admin_Page {
             'post_status'    => 'any',
             'posts_per_page' => -1
         ) );
+
         foreach( $reviews_query->posts as $post ) {
             wp_delete_post( $post->ID, true );
         }
+
         // Delete all review count
         global $wpdb;
         $wpdb->delete( $wpdb->postmeta, array('meta_key' => '_wcsag_rating') );

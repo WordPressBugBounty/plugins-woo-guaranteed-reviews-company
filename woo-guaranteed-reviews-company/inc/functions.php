@@ -1,8 +1,8 @@
 <?php
 
-//Weglot Compatibility
+// Weglot Compatibility
 if(class_exists( 'Context_Weglot' )) {
-    include_once ABSPATH . 'wp-content/plugins/weglot/weglot-functions.php';
+    include_once WP_PLUGIN_DIR . '/weglot/weglot-functions.php';
 }
 
 /**
@@ -125,7 +125,7 @@ function wcsag_get_custom_answers( $product_id ) {
 /**
  * Weglot Plugin Compatibility to know which language is currently chosen on front
  */
-function weglot_current_language_comp() {
+function wcsag_weglot_current_language_comp() {
     if (class_exists( 'Context_Weglot' )) {
         $current_language = weglot_get_current_language();
         return $current_language;
@@ -135,10 +135,10 @@ function weglot_current_language_comp() {
 // CREATION CHAMP GTIN PERSONNALISE
 // Champ que l'on va récupérer avec notre module.
 // Display Fields
-add_action('woocommerce_product_options_general_product_data', 'woocommerce_product_custom_fields');
+add_action('woocommerce_product_options_general_product_data', 'wcsag_woocommerce_product_custom_fields');
 // Save Fields
-add_action('woocommerce_process_product_meta', 'woocommerce_product_custom_fields_save');
-function woocommerce_product_custom_fields()
+add_action('woocommerce_process_product_meta', 'wcsag_woocommerce_product_custom_fields_save');
+function wcsag_woocommerce_product_custom_fields()
 {
     global $woocommerce, $post;
     echo '<div class="product_custom_field">';
@@ -154,7 +154,7 @@ function woocommerce_product_custom_fields()
     echo '</div>';
 }
 
-function woocommerce_product_custom_fields_save($post_id)
+function wcsag_woocommerce_product_custom_fields_save($post_id)
 {
     // Custom Product Text Field
     $woocommerce_gtin_product = $_POST['_gtin_product'];

@@ -13,14 +13,14 @@ class WC_SAG_Shortcode_Footer {
         add_shortcode( 'wcsag_footer', array( $this, 'render_shortcode' ) );
 
         if ( $this->settings->get( 'enable_widget_footer' ) == 1 ) {
-            add_action( 'storefront_footer', array( $this, 'render_shortcode' ), 15 );
+            add_action( 'storefront_footer', array( $this, 'render_action' ), 15 );
         }
     }
 
     /**
      * Render shortcode content
      */
-    public function render_shortcode( $atts = array(), $content = null ) {
+    public function render_shortcode( $atts = array(), $content = null ) {        
         $certificate_url = $this->settings->get( 'certificate_url' );
 
         if ( $certificate_url != '' ) {
@@ -29,5 +29,12 @@ class WC_SAG_Shortcode_Footer {
         else {
             echo '<p>' . __( 'Error: cannot retrieve merchant certificate.', 'woo-guaranteed-reviews-company' ) . '</p>';
         }
+    }
+    
+    /**
+     * Render action content
+     */
+    public function render_action() {
+        echo do_shortcode( '[wcsag_footer]' );
     }
 }

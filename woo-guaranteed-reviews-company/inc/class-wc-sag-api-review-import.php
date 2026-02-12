@@ -3,7 +3,7 @@
 class WC_SAG_API_Review_Import extends WC_SAG_API_Abstract_Route {
     /** @var string Route slug */
     protected $route = '/reviews/import';
-
+    
     /** @var string Query var */
     protected $query_var = 'wcsag_reviews_import';
 
@@ -13,6 +13,12 @@ class WC_SAG_API_Review_Import extends WC_SAG_API_Abstract_Route {
     protected function run() {
         // Get parameters
         $params = $this->validate_request();
+
+        // If new widgets are enabled, no need to sync reviews
+        if($this->settings->get( 'enable_new_widgets' )) {
+            echo 'IGNORE';
+            return;
+        }
 
         // Build full URL
         $url = add_query_arg( array(

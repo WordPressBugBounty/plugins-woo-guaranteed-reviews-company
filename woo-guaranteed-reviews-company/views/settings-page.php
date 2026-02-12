@@ -34,7 +34,22 @@ if ( ! defined( 'WPINC' ) ) {
         <table class="form-table">
             <tr valign="top">
                 <th scope="row">
-                    <label for="api_key"><?php _e( 'API Key', 'woo-guaranteed-reviews-company' ); ?></label>
+                    <label for="public_api_key"><?php _e( 'Public API key', 'woo-guaranteed-reviews-company' ); ?></label>
+                </th>
+                <td>
+                    <fieldset>
+                        <legend class="screen-reader-text"><span><?php _e( 'Public API key', 'woo-guaranteed-reviews-company' ); ?></span></legend>
+                        <label for="public_api_key">
+                            <input class="regular-text ltr" name="public_api_key" type="text" value="<?php echo $this->settings->get( 'public_api_key' )?>" id="public_api_key">
+                        </label>
+                        <p class="description"><?php _e( 'Retrieve your public API key from your account : <a href="https://www.guaranteed-reviews.com/settings/plugin/" target="_blank">https://www.guaranteed-reviews.com/settings/plugin/</a>', 'woo-guaranteed-reviews-company' ); ?></p>
+                    </fieldset>
+                </td>
+            </tr>
+
+            <tr valign="top">
+                <th scope="row">
+                    <label for="api_key"><?php _e( 'Private API key', 'woo-guaranteed-reviews-company' ); ?></label>
                 </th>
                 <td>
                     <?php if ( $languages = apply_filters( 'wpml_active_languages', null ) ) : ?>
@@ -84,8 +99,10 @@ if ( ! defined( 'WPINC' ) ) {
                            name="api_key"
                            value="<?php echo $this->settings->get( 'api_key' ); ?>" />
                     <?php endif; ?>
+                    <p class="description"><?php _e( 'Retrieve your private API key from your account : <a href="https://www.guaranteed-reviews.com/settings/plugin/" target="_blank">https://www.guaranteed-reviews.com/settings/plugin/</a>', 'woo-guaranteed-reviews-company' ); ?></p>
                 </td>
             </tr>
+
             <tr valign="top">
                 <th scope="row">
                     <label for="wc_statuses"><?php _e( 'Order statuses to include', 'woo-guaranteed-reviews-company' ); ?></label>
@@ -107,6 +124,115 @@ if ( ! defined( 'WPINC' ) ) {
         <h3 class="title"><?php _e( 'Widget options', 'woo-guaranteed-reviews-company' ); ?></h3>
 
         <table class="form-table">
+            <tr valign="top">
+                <th scope="row">
+                    <label for="enable_new_widgets"><?php _e( 'New widgets integration', 'woo-guaranteed-reviews-company' ); ?></label>
+                </th>
+                <td>
+                    <fieldset>
+                        <legend class="screen-reader-text"><span><?php _e( 'Enable new widgets integration', 'woo-guaranteed-reviews-company' ); ?></span></legend>
+                        <label for="enable_new_widgets">
+                            <input name="enable_new_widgets" type="checkbox" value="1" id="enable_new_widgets" <?php echo ( $this->settings->get( 'enable_new_widgets' ) == 1 ) ? 'checked="checked"' : '' ?>>
+                            <?php _e( 'Enable new widgets integration', 'woo-guaranteed-reviews-company' ); ?>
+                        </label>
+                        <p class="description"><?php _e('Enjoy the latest features and advanced customization options by enabling the new widget integration.<br><strong>Requires that the Public API key be configured in the above configuration.</strong>', 'woo-guaranteed-reviews-company' ); ?></p>
+                    </fieldset>
+                </td>
+            </tr>
+        </table>
+
+        <table class="form-table">
+            <tr valign="top">
+                <th scope="row">
+                    <label for="use_old_orders_method"><?php _e( 'Use old method to retrieve orders', 'woo-guaranteed-reviews-company' ); ?></label>
+                </th>
+                <td>
+                    <fieldset>
+                        <legend class="screen-reader-text"><span><?php _e( 'Enable (only upon request from support)', 'woo-guaranteed-reviews-company' ); ?></span></legend>
+                        <label for="use_old_orders_method">
+                            <input name="use_old_orders_method" type="checkbox" value="1" id="use_old_orders_method" <?php echo ( $this->settings->get( 'use_old_orders_method' ) == 1 ) ? 'checked="checked"' : '' ?>>
+                            <?php _e( 'Enable (only upon request from support)', 'woo-guaranteed-reviews-company' ); ?>
+                        </label>
+                    </fieldset>
+                </td>
+            </tr>
+        </table>
+
+        <table class="form-table new_widgets_options" style="display: none;">
+            <tr valign="top">
+                <th scope="row">
+                    <label for="widgets_settings"><?php _e( 'Widgets settings', 'woo-guaranteed-reviews-company' ); ?></label>
+                </th>
+                <td>
+                    <a href="<?php _e( 'https://www.guaranteed-reviews.com/settings/widget-integration/', 'woo-guaranteed-reviews-company' ); ?>" target="_blank">
+                        <input type="button" class="button button-secondary" value="<?php _e( 'Access widget settings', 'woo-guaranteed-reviews-company' ); ?>" />
+                    </a>
+                </td>
+            </tr>
+
+            <tr valign="top">
+                <th scope="row">
+                    <label for="widgets_settings"><?php _e( 'Shortcodes list', 'woo-guaranteed-reviews-company' ); ?></label>
+                </th>
+                <td>
+                    <p style="margin-bottom: 1em;">
+                        <?php _e( 'By default, widgets are automatically attached to WordPress and WooCommerce hooks, so you don\'t need to do anything to display them.', 'woo-guaranteed-reviews-company' ); ?><br>
+                        <?php _e( 'If you want to change the display location, you can use the shortcodes below.', 'woo-guaranteed-reviews-company' ); ?>
+                    </p>
+
+                    <div style="margin-bottom: 1em;">
+                        <code>[wcsag_summary]</code>
+                        <p><?php _e( 'Displays the stars, rating, and number of reviews for the product.', 'woo-guaranteed-reviews-company' ); ?></p>
+                    </div>
+
+                    <div style="margin-bottom: 1em;">
+                        <code>[wcsag_reviews]</code>
+                        <p><?php _e( 'Displays the list of product reviews.', 'woo-guaranteed-reviews-company' ); ?></p>
+                    </div>
+
+                    <div style="margin-bottom: 1em;">
+                        <code>[wcsag_category]</code>
+                        <p><?php _e( 'Displays stars and the number of reviews for each product on category pages.', 'woo-guaranteed-reviews-company' ); ?></p>
+                    </div>
+
+                    <div style="margin-bottom: 1em;">
+                        <code>[wcsag_iframe]</code>
+                        <p><?php _e( 'Displays the iframe (carousel) of the latest site reviews.', 'woo-guaranteed-reviews-company' ); ?></p>
+                    </div>
+                    
+                    <div style="margin-bottom: 1em;">
+                        <code>[wcsag_site_rating]</code>
+                        <p><?php _e( 'Displays the stars, rating, and number of reviews for the site.', 'woo-guaranteed-reviews-company' ); ?></p>
+                    </div>
+
+                    <div style="margin-bottom: 1em;">
+                        <code>[wcsag_footer]</code>
+                        <p><?php _e( 'Displays the trust link in the footer.', 'woo-guaranteed-reviews-company' ); ?></p>
+                    </div>
+
+                    <p><?php _e( 'All shortcodes take an optional <code>id</code> argument that allows you to pass the product ID if you have a specific need. Example:', 'woo-guaranteed-reviews-company' ); ?> <code>[wcsag_summary id="1029"]</code></p>
+                </td>
+            </tr>
+        </table>
+
+        <script type="text/javascript">
+            function toggleWidgetsOptions() {
+                var enableNewWidgets = document.querySelector('#enable_new_widgets');
+                document.querySelector('.old_widgets_options').style.display = (enableNewWidgets.checked ? "none" : "table");
+                document.querySelector('.new_widgets_options').style.display = (enableNewWidgets.checked ? "table-row" : "none");
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                document.querySelector('#enable_new_widgets').addEventListener('change', function() {
+                    toggleWidgetsOptions();
+                });
+
+                toggleWidgetsOptions();
+            });
+        </script>
+
+        <table class="form-table old_widgets_options">
+            
             <tr valign="top">
                 <th scope="row">
                     <label for="enable_widget_js"><?php _e( 'Javascript', 'woo-guaranteed-reviews-company' ); ?></label>
@@ -154,76 +280,76 @@ if ( ! defined( 'WPINC' ) ) {
             </tr>
 
             <tr valign="top">
-              <th scope="row">
-                  <label for="widget_product_summary_style"><?php _e( 'Product widget rating', 'woo-guaranteed-reviews-company' ); ?></label>
-              </th>
-              <td>
-                  <fieldset>
-                      <legend class="screen-reader-text"><span><?php _e( 'Product widget rating', 'woo-guaranteed-reviews-company' ); ?></span></legend>
-                      <label for="widget_style" style="display:block;">
-                          <?php _e( 'Choose Widget product rating style (On product pages)', 'woo-guaranteed-reviews-company' ); ?>
-                      </label>
-                      <div class="widget_style_preview" style="display:flex; flex-direction:row; align-items: center;">
+            <th scope="row">
+                <label for="widget_product_summary_style"><?php _e( 'Product widget rating', 'woo-guaranteed-reviews-company' ); ?></label>
+            </th>
+            <td>
+                <fieldset>
+                    <legend class="screen-reader-text"><span><?php _e( 'Product widget rating', 'woo-guaranteed-reviews-company' ); ?></span></legend>
+                    <label for="widget_style" style="display:block;">
+                        <?php _e( 'Choose Widget product rating style (On product pages)', 'woo-guaranteed-reviews-company' ); ?>
+                    </label>
+                    <div class="widget_style_preview" style="display:flex; flex-direction:row; align-items: center;">
                         <div class="buttons">
-                          <input name="widget_style" type="radio" value="0" id="widget_summary_off" <?php echo ( $this->settings->get( 'widget_style' ) == 0 ) ? 'checked="checked"' : '' ?>>
-                          <span><?php _e('Disable', 'woo-guaranteed-reviews-company' ); ?></span><br><br>
-                          <input name="widget_style" type="radio" value="1" id="widget_style_1" <?php echo ( $this->settings->get( 'widget_style' ) == 1 ) ? 'checked="checked"' : '' ?>>
-                          <span><?php _e('Classic style', 'woo-guaranteed-reviews-company' ); ?></span><br><br>
-                          <input name="widget_style" type="radio" value="2" id="widget_style_2" <?php echo ( $this->settings->get( 'widget_style' ) == 2 ) ? 'checked="checked"' : '' ?>>
-                          <span><?php _e('Logo & stars', 'woo-guaranteed-reviews-company' ); ?></span><br><br>
-                          <input name="widget_style" type="radio" value="3" id="widget_style_3" <?php echo ( $this->settings->get( 'widget_style' ) == 3 ) ? 'checked="checked"' : '' ?>>
-                          <span><?php _e('Stars', 'woo-guaranteed-reviews-company' ); ?></span>
+                        <input name="widget_style" type="radio" value="0" id="widget_summary_off" <?php echo ( $this->settings->get( 'widget_style' ) == 0 ) ? 'checked="checked"' : '' ?>>
+                        <span><?php _e('Disable', 'woo-guaranteed-reviews-company' ); ?></span><br><br>
+                        <input name="widget_style" type="radio" value="1" id="widget_style_1" <?php echo ( $this->settings->get( 'widget_style' ) == 1 ) ? 'checked="checked"' : '' ?>>
+                        <span><?php _e('Classic style', 'woo-guaranteed-reviews-company' ); ?></span><br><br>
+                        <input name="widget_style" type="radio" value="2" id="widget_style_2" <?php echo ( $this->settings->get( 'widget_style' ) == 2 ) ? 'checked="checked"' : '' ?>>
+                        <span><?php _e('Logo & stars', 'woo-guaranteed-reviews-company' ); ?></span><br><br>
+                        <input name="widget_style" type="radio" value="3" id="widget_style_3" <?php echo ( $this->settings->get( 'widget_style' ) == 3 ) ? 'checked="checked"' : '' ?>>
+                        <span><?php _e('Stars', 'woo-guaranteed-reviews-company' ); ?></span>
                         </div>
                         <div style="margin-left: 50px;">
-                          <img id="style_1" <?php echo ( $this->settings->get( 'widget_style' ) == 1 ) ? 'style="display: block"' : 'style="display: none"' ?> src="<?php echo WC_SAG_PLUGIN_URL; ?>assets/images/style_1_preview_<?php echo $this->settings->get( 'sag_lang' ); ?>.png"  alt="Widget Style 1">
-                          <img id="style_2" <?php echo ( $this->settings->get( 'widget_style' ) == 2 ) ? 'style="display: block"' : 'style="display: none"' ?> src="<?php echo WC_SAG_PLUGIN_URL; ?>assets/images/style_2_preview_<?php echo $this->settings->get( 'sag_lang' ); ?>.png"  alt="Widget Style 2">
-                          <img id="style_3" <?php echo ( $this->settings->get( 'widget_style' ) == 3 ) ? 'style="display: block"' : 'style="display: none"' ?> src="<?php echo WC_SAG_PLUGIN_URL; ?>assets/images/style_3_preview_<?php echo $this->settings->get( 'sag_lang' ); ?>.png"  alt="Widget Style 3">
+                        <img id="style_1" <?php echo ( $this->settings->get( 'widget_style' ) == 1 ) ? 'style="display: block"' : 'style="display: none"' ?> src="<?php echo WC_SAG_PLUGIN_URL; ?>assets/images/style_1_preview_<?php echo $this->settings->get( 'sag_lang' ); ?>.png"  alt="Widget Style 1">
+                        <img id="style_2" <?php echo ( $this->settings->get( 'widget_style' ) == 2 ) ? 'style="display: block"' : 'style="display: none"' ?> src="<?php echo WC_SAG_PLUGIN_URL; ?>assets/images/style_2_preview_<?php echo $this->settings->get( 'sag_lang' ); ?>.png"  alt="Widget Style 2">
+                        <img id="style_3" <?php echo ( $this->settings->get( 'widget_style' ) == 3 ) ? 'style="display: block"' : 'style="display: none"' ?> src="<?php echo WC_SAG_PLUGIN_URL; ?>assets/images/style_3_preview_<?php echo $this->settings->get( 'sag_lang' ); ?>.png"  alt="Widget Style 3">
                         </div>
-                      </div>
-                      <script type="text/javascript">
-                          for (var i = 1; i < 4; i++) {
+                    </div>
+                    <script type="text/javascript">
+                        for (var i = 1; i < 4; i++) {
                             document.querySelector('#widget_style_'+i).addEventListener('change', function(){
                                 if (this.checked == true) {
-                                  document.querySelectorAll('.widget_style_preview img').forEach((item, j) => {
+                                document.querySelectorAll('.widget_style_preview img').forEach((item, j) => {
                                     item.style.display = "none";
-                                  });
-                                  let imageIdToDisplay = "style_" + this.id.slice(-1);
-                                  document.getElementById(imageIdToDisplay).style.display = "block";
+                                });
+                                let imageIdToDisplay = "style_" + this.id.slice(-1);
+                                document.getElementById(imageIdToDisplay).style.display = "block";
                                 }
                             });
-                          }
-                          document.querySelector('#widget_summary_off').addEventListener('change', function(){
-                              if (this.checked == true) {
+                        }
+                        document.querySelector('#widget_summary_off').addEventListener('change', function(){
+                            if (this.checked == true) {
                                 document.querySelectorAll('.widget_style_preview img').forEach((item, j) => {
-                                  item.style.display = "none";
+                                item.style.display = "none";
                                 });
-                              }
-                          });
-                      </script>
-                  </fieldset>
-              </td>
+                            }
+                        });
+                    </script>
+                </fieldset>
+            </td>
             </tr>
 
             <tr valign="top">
-              <th scope="row">
-                  <label for="source_lang_flags"><?php _e( 'Country flags on product widget', 'woo-guaranteed-reviews-company' ); ?></label>
-              </th>
-              <td>
-                  <fieldset>
-                      <legend class="screen-reader-text"><span><?php _e( 'Country flags on product widget', 'woo-guaranteed-reviews-company' ); ?></span></legend>
-                      <label for="source_lang_flags" style="display:block;">
-                          <?php _e( 'Choose when the country flag is displayed (on product pages)', 'woo-guaranteed-reviews-company' ); ?>
-                      </label>
-                      <div class="buttons">
+            <th scope="row">
+                <label for="source_lang_flags"><?php _e( 'Country flags on product widget', 'woo-guaranteed-reviews-company' ); ?></label>
+            </th>
+            <td>
+                <fieldset>
+                    <legend class="screen-reader-text"><span><?php _e( 'Country flags on product widget', 'woo-guaranteed-reviews-company' ); ?></span></legend>
+                    <label for="source_lang_flags" style="display:block;">
+                        <?php _e( 'Choose when the country flag is displayed (on product pages)', 'woo-guaranteed-reviews-company' ); ?>
+                    </label>
+                    <div class="buttons">
                         <input name="source_lang_flags" type="radio" value="0" <?php echo ( $this->settings->get( 'source_lang_flags' ) == 0 ) ? 'checked="checked"' : '' ?>>
                         <span><?php _e('Disable', 'woo-guaranteed-reviews-company' ); ?></span><br><br>
                         <input name="source_lang_flags" type="radio" value="1" <?php echo ( $this->settings->get( 'source_lang_flags' ) == 1 ) ? 'checked="checked"' : '' ?>>
                         <span><?php _e('Enable only for translated reviews', 'woo-guaranteed-reviews-company' ); ?></span><br><br>
                         <input name="source_lang_flags" type="radio" value="2" <?php echo ( $this->settings->get( 'source_lang_flags' ) == 2 ) ? 'checked="checked"' : '' ?>>
                         <span><?php _e('Enable for every review', 'woo-guaranteed-reviews-company' ); ?></span>
-                      </div>
-                  </fieldset>
-              </td>
+                    </div>
+                </fieldset>
+            </td>
             </tr>
 
             <tr valign="top">
@@ -281,8 +407,8 @@ if ( ! defined( 'WPINC' ) ) {
                     </fieldset>
                 </td>
             </tr>
-			
-			<tr valign="top">
+            
+            <tr valign="top">
                 <th scope="row">
                     <label for="posts_per_page"><?php _e( 'Star\'s color', 'woo-guaranteed-reviews-company' ); ?></label>
                 </th>

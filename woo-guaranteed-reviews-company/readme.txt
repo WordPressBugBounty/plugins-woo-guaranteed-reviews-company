@@ -1,13 +1,13 @@
 === Guaranteed Reviews Company (Société des Avis Garantis) ===
 Contributors: nicolas2d
-Tags: reviews, customer, avis, clients, rates, notes, commentaires, produits, comments, étoiles, google, stars
-Requires at least: 4.0
+Tags: reviews, customer, avis, clients, rates
+Requires at least: 4.5
 Tested up to: 6.8.2
-Requires PHP: 5.0
-Stable tag: 1.2.6
+Requires PHP: 5.3
+Stable tag: 1.2.9
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
-WC requires at least: 2.5
+WC requires at least: 3.0
 WC tested up to: 10.2
 
 Collect and display product and website reviews through Guaranteed Reviews Company / Société des Avis Garantis.
@@ -69,6 +69,18 @@ This section describes how to install the plugin and get it working.
 5. On plugin configuration page paste API Key provided by Guaranteed Reviews Company.
 
 == Changelog ==
+
+= 1.2.9 =
+* Added a feature to retrieve product information
+* Fixed retrieval of parent product information in orders
+
+= 1.2.8 =
+* Fix minor bugs on widgets display and order data transmission
+
+= 1.2.7 =
+* Implementation of new widgets integration. Enjoy the latest features and advanced customization options.
+* Optimization of order data transmission
+* Fix Weglot compatibility issue
 
 = 1.2.6 =
 * Enhanced performance and compatibility

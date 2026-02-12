@@ -23,12 +23,17 @@ class WC_SAG_Shortcode_Iframe {
             'height' => 200,
             'format' => 'horizontal'
         ), $atts );
+        
+        if( $this->settings->get( 'enable_new_widgets' ) ) {
+            echo '<div class="grc-site-iframe" data-type="' . $atts['format'] . '"></div>';
+        }
+        else {
+            // Display SAG iframe
+            $iframe_url = $this->settings->get( 'sag_domain' ) . '/wp-content/plugins/ag-core/widgets/iframe/2/' . ( $atts[ 'format' ] == 'vertical' ? 'v/' : 'h/' ) . '?id=' . $this->settings->get( 'site_id' );
 
-        // Display SAG iframe
-        $iframe_url = $this->settings->get( 'sag_domain' ) . '/wp-content/plugins/ag-core/widgets/iframe/2/' . ( $atts[ 'format' ] == 'vertical' ? 'v/' : 'h/' ) . '?id=' . $this->settings->get( 'site_id' );
-
-        echo '<div id="steavisgarantis" align="center" style="padding: 5px 0; width: 100%; background: white; border-radius: 8px;">
-                <iframe width="' . esc_attr( $atts[ 'width' ] ) . '" height="' . esc_attr( $atts[ 'height' ] ) . '" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="' . esc_url( $iframe_url )  . '"></iframe>
-              </div>';
+            echo '<div id="steavisgarantis" align="center" style="padding: 5px 0; width: 100%; background: white; border-radius: 8px;">
+                    <iframe width="' . esc_attr( $atts[ 'width' ] ) . '" height="' . esc_attr( $atts[ 'height' ] ) . '" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="' . esc_url( $iframe_url )  . '"></iframe>
+                </div>';
+        }
     }
 }

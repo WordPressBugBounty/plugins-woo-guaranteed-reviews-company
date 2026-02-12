@@ -10,16 +10,19 @@ class WC_SAG_Settings {
 
     protected $default_settings = array(
         'api_key_raw'            => '',
+        'public_api_key'         => '',
         'wc_statuses'            => array( 'wc-completed' ),
         'enable_widget_js'       => 1,
         'enable_widget_product'  => 1,
         'widget_style'           => 1,
-        'minReviews'=> 1,
+        'minReviews'             => 1,
         'enable_widget_footer'   => 1,
         'enable_loop_rating'     => 1,
         'posts_per_page'         => '6',
         'source_lang_flags'      => 1,
-		'star_color'			 => '#f5d700'
+		'star_color'			 => '#f5d700',
+        'enable_new_widgets'     => false,
+        'use_old_orders_method'  => false
     );
 
     /**
@@ -77,7 +80,7 @@ class WC_SAG_Settings {
             }
             elseif (class_exists( 'Context_Weglot' )) {
                 //Weglot Plugin Compatibility, returns current language on front
-                $current_language =  weglot_current_language_comp();
+                $current_language =  wcsag_weglot_current_language_comp();
                 return $raw_api_key[$current_language];
             }
             else {
@@ -92,7 +95,9 @@ class WC_SAG_Settings {
     }
 
     public function guess_api_key_for_language( $lang ) {
+        $lang = substr( strtolower( $lang ), 0, 2 );
         $raw_api_key = $this->settings['api_key_raw'];
+        
         if ( is_array( $raw_api_key ) ) {
             foreach ( $raw_api_key as $api_key) {
                 if ( wcsag_get_lang_from_api_key( $api_key ) == $lang ) {

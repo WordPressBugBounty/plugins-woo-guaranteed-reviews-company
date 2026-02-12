@@ -8,6 +8,7 @@ include_once( WC_SAG_PLUGIN_DIR . 'inc/class-wc-sag-shortcode-iframe.php' );
 include_once( WC_SAG_PLUGIN_DIR . 'inc/class-wc-sag-shortcode-summary.php' );
 include_once( WC_SAG_PLUGIN_DIR . 'inc/class-wc-sag-shortcode-reviews.php' );
 include_once( WC_SAG_PLUGIN_DIR . 'inc/class-wc-sag-shortcode-footer.php' );
+include_once( WC_SAG_PLUGIN_DIR . 'inc/class-wc-sag-shortcode-site-rating.php' );
 
 class WC_SAG_Frontend {
     /** @var WC_SAG_Settings Plugin settings */
@@ -28,18 +29,36 @@ class WC_SAG_Frontend {
      * Init frontend part of the plugin
      */
     protected function init() {
-        add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_common_script_styles' ) );
+        if( $this->settings->get( 'enable_new_widgets' ) ) {
+            add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_widgets_script' ) );
+        }
+        else {
+            add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_common_script_styles' ) );
+            add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_widget_js' ) );
+            add_action( 'widgets_init', array( $this, 'widgets_init' ) );
 
-        add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_widget_js' ) );
-
-        add_action( 'widgets_init', array( $this, 'widgets_init' ) );
+            new WC_SAG_Frontend_Structured_Data();
+        }
 
         new WC_SAG_Frontend_Loop_Rating( $this->settings );
-        new WC_SAG_Frontend_Structured_Data();
         new WC_SAG_Shortcode_Iframe( $this->settings );
         new WC_SAG_Shortcode_Summary( $this->settings );
         new WC_SAG_Shortcode_Reviews( $this->settings );
         new WC_SAG_Shortcode_Footer( $this->settings );
+        new WC_SAG_Shortcode_Site_Rating( $this->settings );
+    }
+    
+    /**
+     * Enqueue the main widgets script
+     */
+    public function enqueue_widgets_script() {
+        wp_enqueue_script('grc-widgets', 'https://widgets.guaranteed-reviews.com/static/widgets.min.js', array(), null, true);
+
+        wp_add_inline_script(
+            'grc-widgets',
+            'window.GRCWidgetsConfig = { publicKey: "' . esc_js( $this->settings->get('public_api_key') ) . '", lang: "auto" };',
+            'before'
+        );        
     }
 
     /**
@@ -60,7 +79,7 @@ class WC_SAG_Frontend {
             add_action( 'wp_footer', array( $this, 'enqueue_inline_config' ), 50 );
         }
     }
-
+    
     /**
      * Add JS inline config in footer
      */

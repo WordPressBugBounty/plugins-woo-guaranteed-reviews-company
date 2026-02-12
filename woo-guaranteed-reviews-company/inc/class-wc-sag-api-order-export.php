@@ -3,7 +3,7 @@
 class WC_SAG_API_Order_Export extends WC_SAG_API_Abstract_Route {
     /** @var string Route slug */
     protected $route = '/orders/export';
-
+    
     /** @var string Query var */
     protected $query_var = 'wcsag_orders_export';
 
@@ -12,6 +12,17 @@ class WC_SAG_API_Order_Export extends WC_SAG_API_Abstract_Route {
      */
     protected function run() {
         $params = $this->validate_request();
+
+        // Expose util headers
+        header( 'X-GRC-Module: wordpress' );
+        header( 'X-GRC-Version: ' . WC_SAG_VERSION );
+        header( 'X-GRC-Widgets: ' . ($this->settings->get( 'enable_new_widgets' ) ? '1' : '0') );
+
+        // Block if attempt to sending emails from GRC (old version)
+        if( isset( $params['source'] ) && $params['source'] == 'mail' && !$this->settings->get('use_old_orders_method') ) {
+            echo 'IGNORE';
+            return;
+        }
 
         // Get orders between requested dates
         $orders = $this->get_orders( $params );
@@ -116,12 +127,10 @@ class WC_SAG_API_Order_Export extends WC_SAG_API_Abstract_Route {
                 echo "PL WC loaded";
             }
 
-
             return array_map( 'wc_get_order', get_posts( $args ) );
         }
         else {
-			
-
+            
             $args = array(
                 'type'           => 'shop_order',
                 'status'         => $this->settings->get( 'wc_statuses' ),
@@ -202,6 +211,11 @@ class WC_SAG_API_Order_Export extends WC_SAG_API_Abstract_Route {
         }
         else {
             die( 'Invalid toDate' );
+        }
+
+        // Source validation
+        if ( isset( $_POST['source'] ) ) {
+            $params['source'] = $_POST['source'];
         }
 
         return $params;
