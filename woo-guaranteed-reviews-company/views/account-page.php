@@ -64,6 +64,14 @@ if ( ! defined( 'WPINC' ) ) {
                             <label><input type="radio" name="language" value="https://www.g-b-n.nl/wp-login.php?action=register"<?php echo substr( get_locale(), 0, 2) == 'nl' ? 'checked="checked"' : '' ?>>
 								<?php _e( 'Dutch (Gegarandeerde Beoordelingen Nederland)', 'woo-guaranteed-reviews-company' ); ?>
 							</label>
+                            <br/>
+                            <label><input type="radio" name="language" value="https://www.sdag.pt/wp-login.php?action=register"<?php echo substr( get_locale(), 0, 2) == 'pt' ? 'checked="checked"' : '' ?>>
+								<?php _e( 'Portuguese (Sociedade de Avaliações Garantidas)', 'woo-guaranteed-reviews-company' ); ?>
+							</label>
+                            <br/>
+                            <label><input type="radio" name="language" value="https://www.gwarantowane-opinie.pl/wp-login.php?action=register"<?php echo substr( get_locale(), 0, 2) == 'pl' ? 'checked="checked"' : '' ?>>
+								<?php _e( 'Polish (Gwarantowane Opinie Polska)', 'woo-guaranteed-reviews-company' ); ?>
+							</label>
                         </fieldset>
                     </td>
                 </tr>

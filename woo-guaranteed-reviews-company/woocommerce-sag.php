@@ -3,7 +3,7 @@
  * Plugin Name: Woocommerce - Guaranteed Reviews Company
  * Plugin URI: https://www.guaranteed-reviews.com/
  * Description: Shop and/or product reviews, Google stars, Trusted certificate, automatic validation (option), review files importation…
- * Version: 1.2.9
+ * Version: 1.3.0
  * Author: Guaranteed Reviews Company
  * Author URI: http://www.guaranteed-reviews.com/
  * License: GPLv3
@@ -15,7 +15,7 @@ if ( ! defined( 'WPINC' ) ) {
     die;
 }
 
-define( 'WC_SAG_VERSION', '1.2.9' );
+define( 'WC_SAG_VERSION', '1.3.0' );
 define( 'WC_SAG_MIN_PHP_VER', '5.3.0' );
 define( 'WC_SAG_MIN_WC_VER', '3.0.0' );
 define( 'WC_SAG_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
@@ -217,6 +217,9 @@ class WC_SAG {
             return;
         }
 
+        // Send phone data in order if enabled
+        $phoneEnabled = $this->settings->get( 'send_phone' );
+        
         // Prepare order data
         $data = array(
             'api_key' => $apiKey,
@@ -228,14 +231,17 @@ class WC_SAG {
                     'firstname'  => $order->get_billing_first_name(),
                     'lastname'   => $order->get_billing_last_name(),
                     'email'      => $order->get_billing_email(),
+                    'phone'      => $phoneEnabled ? $order->get_billing_phone() : null,
                     'reference'  => $order->get_order_number(),
                     'products'   => array()
                 )
             )
         );
-
+        
         foreach ( $order->get_items() as $item ) {
-            $product = $item->get_product();
+            // Get product
+            $product_id = $item->get_product_id();
+            $product = wc_get_product($product_id);
 
             if ( ! $product ) {
                 continue;
@@ -360,13 +366,18 @@ class WC_SAG {
             return pll_get_post_language( $order_id, 'slug' );
         }
 
-        // WPML
+        // WPML (function)
         if ( function_exists( 'wpml_get_language_information' ) ) {
             $lang_info = wpml_get_language_information( null, $order_id );
             if ( ! empty( $lang_info['language_code'] ) ) {
                 return $lang_info['language_code'];
             }
         }
+
+        // WPML (meta)
+		if ( $wpml_language_meta = get_post_meta( $order_id, 'wpml_language', true ) ) {
+			return $wpml_language_meta;
+		}
 
         // Weglot
         if ( class_exists( 'Context_Weglot' ) ) {
@@ -375,6 +386,13 @@ class WC_SAG {
                 return $lang;
             }
         }
+        
+        // TranslatePress
+		if ( class_exists( 'trp_get_languages' ) ) {
+			if ( $lang = $order->get_meta( 'trp_language' ) ) {
+				return substr( $lang, 0, 2 );
+			}
+		}
 
         // Default locale
         return get_locale();

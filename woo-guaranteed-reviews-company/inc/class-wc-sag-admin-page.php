@@ -101,6 +101,7 @@ class WC_SAG_Admin_Page {
 
         $this->settings->set( 'enable_new_widgets', isset( $_POST['enable_new_widgets'] ) && !empty( $_POST['public_api_key'] ) ? 1 : 0 );
         $this->settings->set( 'use_old_orders_method', isset( $_POST['use_old_orders_method'] ) ? 1 : 0 );
+        $this->settings->set( 'send_phone', isset( $_POST['send_phone'] ) ? 1 : 0 );
         $this->settings->set( 'enable_widget_js', isset( $_POST['enable_widget_js'] ) ? 1 : 0 );
         $this->settings->set( 'enable_widget_product', isset( $_POST['enable_widget_product'] ) ? 1 : 0 );
         $this->settings->set( 'widget_style', $_POST['widget_style'] );

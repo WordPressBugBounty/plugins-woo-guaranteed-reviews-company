@@ -93,7 +93,26 @@ if ( ! defined( 'WPINC' ) ) {
                                        $raw_api_key;
                                    ?>" /><br/>
                         <?php endforeach; ?>
-                        <?php else : ?>
+                    <?php elseif ( function_exists( 'trp_get_languages' ) && $languages = trp_get_languages() ): ?>
+						<?php foreach ( $languages as $language_code => $language ) :
+							$language_code = substr( $language_code, 0, 2 ); ?>
+					
+							<span style="display: inline-block;width: 20px;"><?php echo esc_attr( strtoupper( $language_code ) ); ?></span>
+
+							<input class="regular-text ltr"
+								   type="text"
+								   name="api_key[<?php echo esc_attr( $language_code ); ?>]"
+								   value="<?php
+									   echo esc_attr(
+										   is_array( $raw_api_key = $this->settings->get( 'api_key_raw' ) )
+										   && array_key_exists( $language_code, $raw_api_key )
+											   ? $raw_api_key[ $language_code ]
+											   : $raw_api_key
+									   );
+								   ?>" />
+							<br/>
+						<?php endforeach; ?>
+                    <?php else: ?>
                     <input class="regular-text ltr"
                            type="text"
                            name="api_key"
@@ -153,6 +172,24 @@ if ( ! defined( 'WPINC' ) ) {
                             <input name="use_old_orders_method" type="checkbox" value="1" id="use_old_orders_method" <?php echo ( $this->settings->get( 'use_old_orders_method' ) == 1 ) ? 'checked="checked"' : '' ?>>
                             <?php _e( 'Enable (only upon request from support)', 'woo-guaranteed-reviews-company' ); ?>
                         </label>
+                    </fieldset>
+                </td>
+            </tr>
+        </table>
+
+        <table class="form-table">
+            <tr valign="top">
+                <th scope="row">
+                    <label for="send_phone"><?php _e( 'Phone number transmission', 'woo-guaranteed-reviews-company' ); ?></label>
+                </th>
+                <td>
+                    <fieldset>
+                        <legend class="screen-reader-text"><span><?php _e( 'Enable', 'woo-guaranteed-reviews-company' ); ?></span></legend>
+                        <label for="send_phone">
+                            <input name="send_phone" type="checkbox" value="1" id="send_phone" <?php echo ( $this->settings->get( 'send_phone' ) == 1 ) ? 'checked="checked"' : '' ?>>
+                            <?php _e( 'Enable', 'woo-guaranteed-reviews-company' ); ?>
+                        </label>
+                        <p class="description"><?php _e( 'By enabling this option, you authorize the transmission of your customers phone numbers in order to send them an invitation to leave a review. You are responsible for ensuring that this use complies with applicable regulations (including GDPR): informing customers, having an appropriate legal basis, and allowing them to opt out where required. By enabling this option, you confirm that the necessary information has been included in your privacy policy.', 'woo-guaranteed-reviews-company' ); ?></p>
                     </fieldset>
                 </td>
             </tr>

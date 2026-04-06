@@ -22,7 +22,8 @@ class WC_SAG_Settings {
         'source_lang_flags'      => 1,
 		'star_color'			 => '#f5d700',
         'enable_new_widgets'     => false,
-        'use_old_orders_method'  => false
+        'use_old_orders_method'  => false,
+        'send_phone'             => false
     );
 
     /**
@@ -119,8 +120,8 @@ class WC_SAG_Settings {
             $api_key = $this->get( 'api_key' );
             $lang = !empty($api_key) ? wcsag_get_lang_from_api_key( $api_key ) : substr( get_locale(), 0, 2);
         }
-
-		//Domain
+        
+		// Domain
 		switch (strtolower( $lang )) {
 			case 'fr' : $url = 'https://www.societe-des-avis-garantis.fr';			break;
 			case 'en' : $url = 'https://www.guaranteed-reviews.com';				break;
@@ -128,6 +129,8 @@ class WC_SAG_Settings {
 			case 'es' : $url = 'https://www.sociedad-de-opiniones-contrastadas.es';	break;
 			case 'de' : $url = 'https://www.g-g-b.de';								break;
 			case 'nl' : $url = 'https://www.g-b-n.nl';								break;
+            case 'pt' : $url = 'https://www.sdag.pt';								break;
+            case 'pl' : $url = 'https://www.gwarantowane-opinie.pl';				break;
 			default   : $url = 'https://www.societe-des-avis-garantis.fr';			break;
 		}
 
@@ -173,8 +176,7 @@ class WC_SAG_Settings {
 
         return $certificate_url;
     }
-
-
+    
     /**
      * Get SAG Lang
      */

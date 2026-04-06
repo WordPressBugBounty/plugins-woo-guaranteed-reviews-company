@@ -4,7 +4,7 @@ Tags: reviews, customer, avis, clients, rates
 Requires at least: 4.5
 Tested up to: 6.8.2
 Requires PHP: 5.3
-Stable tag: 1.2.9
+Stable tag: 1.3.0
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 WC requires at least: 3.0
@@ -57,6 +57,8 @@ Spanish website version: [https://www.sociedad-de-opiniones-contrastadas.es/](ht
 Italian website version: [https://www.societa-recensioni-garantite.it/](https://www.societa-recensioni-garantite.it/)
 German website version: [https://www.g-g-b.de/](https://www.g-g-b.de/)
 Dutch website version: [https://www.g-b-n.nl/](https://www.g-b-n.nl/)
+Portuguese website version: [https://www.sdag.pt/](https://www.sdag.pt/)
+Polish website version: [https://www.gwarantowane-opinie.pl/](https://www.gwarantowane-opinie.pl/)
 
 == Installation ==
 
@@ -69,6 +71,13 @@ This section describes how to install the plugin and get it working.
 5. On plugin configuration page paste API Key provided by Guaranteed Reviews Company.
 
 == Changelog ==
+
+= 1.3.0 =
+* Added PT language
+* Added PL language
+* Optimized order count performance
+* Fixed WPML order language detection
+* Added TranslatePress support
 
 = 1.2.9 =
 * Added a feature to retrieve product information

@@ -118,6 +118,24 @@ class WC_SAG_API_Order_Export extends WC_SAG_API_Abstract_Route {
                     'compare' => 'IN',
                 );
             }
+            
+            // TranslatePress
+			if ( $params['lang'] && class_exists( 'trp_get_languages' )) {
+				$locales = [];
+				foreach ( trp_get_languages() as $language_code => $language ) {
+					if ( strpos( $language_code, $params['lang'] ) === 0 ) {
+						$locales[] = $language_code;
+					}
+				}
+				
+				if ( ! empty( $locales ) ) {
+					$args['meta_query'][] = array(
+						'key'     => 'trp_language',
+						'value'   => $locales,
+						'compare' => 'IN',
+					);
+				}
+			}
 			
 			if ( $params['lang'] && class_exists( 'Context_Weglot' )) {
                 echo "Weglot_up";
@@ -129,7 +147,84 @@ class WC_SAG_API_Order_Export extends WC_SAG_API_Abstract_Route {
 
             return array_map( 'wc_get_order', get_posts( $args ) );
         }
-        else {
+        else 
+        {
+        	// Try to get orders count with SQL query (faster)
+			if($params['source'] == 'count') {
+				global $wpdb;
+
+				$statuses = $this->settings->get('wc_statuses');
+				$statuses_sql = implode("','", array_map('esc_sql', $statuses));
+				
+				$has_lang_filter = $params['lang'] && (
+					( function_exists( 'icl_object_id' ) && class_exists( 'SitePress' ) && function_exists( 'wcml_loader' ) )
+					|| class_exists( 'Polylang_Woocommerce' )
+					|| class_exists( 'Context_Weglot' ) 
+					|| class_exists( 'trp_get_languages' )
+				);
+				
+				// Check if WPML table exists
+				$wpml_table_exists = $wpdb->get_var(
+					$wpdb->prepare(
+						"SHOW TABLES LIKE %s",
+						$wpdb->prefix . 'icl_translations'
+					)
+				);
+
+				$sql = "SELECT COUNT(DISTINCT p.ID) FROM {$wpdb->posts} p ";
+
+				if($wpml_table_exists) {
+					// WPML
+					$sql .= "LEFT JOIN {$wpdb->prefix}icl_translations wpml ON wpml.element_id = p.ID AND wpml.element_type = 'post_shop_order' ";
+				}
+				
+				// Polylang
+				$sql .= "LEFT JOIN {$wpdb->term_relationships} tr ON tr.object_id = p.ID 
+				LEFT JOIN {$wpdb->term_taxonomy} tt ON tt.term_taxonomy_id = tr.term_taxonomy_id AND tt.taxonomy = 'language'
+				LEFT JOIN {$wpdb->terms} polylang ON polylang.term_id = tt.term_id ";
+				
+				// Meta
+				$sql .= "LEFT JOIN {$wpdb->postmeta} pm_lang ON pm_lang.post_id = p.ID AND pm_lang.meta_key IN ('weglot_language', '_order_language', 'wpml_language', 'trp_language') ";
+				
+				$sql .= "WHERE p.post_type = 'shop_order'
+				AND p.post_status IN ('$statuses_sql')
+				AND p.post_modified BETWEEN %s AND %s";
+				
+				if($has_lang_filter) {
+					$langs = (array) $this->get_local_languages($params['lang']);
+					
+					if( class_exists( 'trp_get_languages' ) ) {
+						foreach ( trp_get_languages() as $language_code => $language ) {
+							if ( strpos( $language_code, $params['lang'] ) === 0 ) {
+								$langs[] = $language_code;
+								break;
+							}
+						}
+					}
+					
+					$langs_sql = implode("','", array_map('esc_sql', $langs));
+					
+					$sql .= " AND (
+						". ($wpml_table_exists ? "wpml.language_code IN ('$langs_sql') OR " : "") ."
+						polylang.slug IN ('$langs_sql')
+						OR pm_lang.meta_value IN ('$langs_sql')
+					)";
+				}
+				
+				$sql = $wpdb->prepare(
+					$sql,
+					date('Y-m-d H:i:s', $params['date_from']),
+					date('Y-m-d H:i:s', $params['date_to'])
+				);
+				
+				$orders = $wpdb->get_var($sql);
+				
+				if($orders > 0) {
+					header('Content-Type: application/json');
+					echo json_encode(['count' => $orders]);
+					exit;
+				}
+			}
             
             $args = array(
                 'type'           => 'shop_order',
@@ -154,6 +249,26 @@ class WC_SAG_API_Order_Export extends WC_SAG_API_Abstract_Route {
 				$args['meta_key'] = 'weglot_language';
 				$args['meta_value'] = $this->get_local_languages( $params['lang'] );
             }
+
+            // TranslatePress
+			if ( $params['lang'] && class_exists( 'trp_get_languages' )) {
+				$locale = null;
+
+				foreach ( trp_get_languages() as $language_code => $language ) {
+					if ( strpos( $language_code, $params['lang'] ) === 0 ) {
+						$locale = $language_code;
+						break;
+					}
+				}
+
+				if ( $locale ) {
+					$args['meta_query'][] = array(
+						'key'     => 'trp_language',
+						'value'   => $locale,
+						'compare' => '=',
+					);
+				}
+			}
 			
             $orders = wc_get_orders( $args );
             return $orders;
@@ -241,6 +356,10 @@ class WC_SAG_API_Order_Export extends WC_SAG_API_Abstract_Route {
      * Format order values
      */
     protected function format_order( $order ) {
+
+        // Check if phone number transmission is enabled
+        $phoneEnabled = $this->settings->get( 'send_phone' );
+
         $formatted_order = array(
             'id_order'            => version_compare( WC_VERSION, '3.0.0', '<' ) ? $order->id : $order->get_id(),
             'reference'           => $order->get_order_number(),
@@ -249,6 +368,7 @@ class WC_SAG_API_Order_Export extends WC_SAG_API_Abstract_Route {
             'firstname'           => version_compare( WC_VERSION, '3.0.0', '<' ) ? $order->billing_first_name : $order->get_billing_first_name(),
             'lastname'            => version_compare( WC_VERSION, '3.0.0', '<' ) ? $order->billing_last_name : $order->get_billing_last_name(),
             'email'               => version_compare( WC_VERSION, '3.0.0', '<' ) ? $order->billing_email : $order->get_billing_email(),
+            'phone'               => $phoneEnabled ? (version_compare( WC_VERSION, '3.0.0', '<' ) ? $order->billing_phone : $order->get_billing_phone()) : null, 
             'shipping_country'    => version_compare( WC_VERSION, '3.0.0', '<' ) ? $order->shipping_country : $order->get_shipping_country()
         );
 
